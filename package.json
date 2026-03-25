@@ -1,0 +1,46 @@
+{
+  "name": "pinshot-windows",
+  "version": "0.1.0",
+  "description": "PinShot for Windows built with Electron",
+  "main": "src/main.js",
+  "author": "OpenAI Codex",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist:win": "electron-builder --win portable --x64",
+    "pack:win": "electron-builder --win portable --x64 --dir"
+  },
+  "build": {
+    "appId": "com.pinshot.windows",
+    "productName": "PinShot",
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "asar": true,
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "PinShot-${version}-windows-${arch}.${ext}"
+    }
+  },
+  "dependencies": {
+    "@vitalets/google-translate-api": "^9.2.1",
+    "electron-store": "^10.1.0",
+    "tesseract.js": "^6.0.1"
+  },
+  "devDependencies": {
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12"
+  }
+}
+

@@ -1,0 +1,244 @@
+:root {
+  color-scheme: dark;
+  --bg: #091018;
+  --panel: rgba(14, 24, 36, 0.82);
+  --panel-edge: rgba(148, 170, 196, 0.18);
+  --text: #eff5ff;
+  --muted: #8fa3bc;
+  --accent: #35a7ff;
+  --accent-soft: rgba(53, 167, 255, 0.16);
+  --danger: #ef5555;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(53, 167, 255, 0.22), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(20, 214, 180, 0.14), transparent 24%),
+    linear-gradient(160deg, #091018 0%, #101c2b 100%);
+}
+
+.app-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+.hero-card,
+.panel {
+  border: 1px solid var(--panel-edge);
+  background: var(--panel);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+.hero-card {
+  display: grid;
+  grid-template-columns: 1.35fr 0.9fr;
+  gap: 28px;
+  padding: 28px;
+  border-radius: 28px;
+}
+
+.eyebrow,
+.panel-kicker {
+  margin: 0 0 8px;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #79c0ff;
+}
+
+.hero-copy h1,
+.panel h2 {
+  margin: 0;
+  font-size: 34px;
+  line-height: 1.08;
+}
+
+.hero-text {
+  max-width: 640px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.hero-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 0;
+  border-radius: 14px;
+  padding: 13px 16px;
+  cursor: pointer;
+  color: white;
+  background: linear-gradient(135deg, #2f86ff 0%, #39c0f8 100%);
+  transition: transform 140ms ease, opacity 140ms ease, box-shadow 140ms ease;
+  box-shadow: 0 14px 36px rgba(53, 167, 255, 0.22);
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button.secondary {
+  color: var(--text);
+  background: rgba(124, 153, 185, 0.12);
+  box-shadow: none;
+}
+
+button.text-button {
+  padding: 0;
+  color: #8bc5ff;
+  background: transparent;
+  box-shadow: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) 1fr;
+  gap: 24px;
+  margin-top: 24px;
+}
+
+.panel {
+  padding: 22px;
+  border-radius: 24px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 8px 12px;
+  color: #9ed6ff;
+  background: var(--accent-soft);
+  border: 1px solid rgba(104, 186, 255, 0.26);
+  white-space: nowrap;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.field span,
+.toggle strong {
+  font-size: 14px;
+}
+
+.field input {
+  border: 1px solid rgba(148, 170, 196, 0.18);
+  border-radius: 14px;
+  padding: 13px 14px;
+  color: var(--text);
+  background: rgba(5, 10, 16, 0.44);
+}
+
+.wide {
+  width: 100%;
+}
+
+.toggle {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-top: 18px;
+}
+
+.toggle input {
+  margin-top: 5px;
+}
+
+.toggle small {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.status {
+  min-height: 24px;
+  margin: 18px 0 0;
+  color: #9ac7ea;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.history-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 15px;
+  border-radius: 16px;
+  border: 1px solid rgba(148, 170, 196, 0.14);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.history-item strong {
+  display: block;
+}
+
+.history-item small {
+  color: var(--muted);
+}
+
+.history-item button {
+  min-width: 88px;
+  padding: 10px 12px;
+}
+
+.empty-state {
+  padding: 18px;
+  text-align: center;
+  border-radius: 16px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+@media (max-width: 920px) {
+  .hero-card,
+  .grid {
+    grid-template-columns: 1fr;
+  }
+
+  .app-shell {
+    padding: 18px;
+  }
+
+  .hero-copy h1,
+  .panel h2 {
+    font-size: 28px;
+  }
+}
+

@@ -1,0 +1,211 @@
+:root {
+  --border: rgba(0, 0, 0, 0.2);
+  --selected: #4fa8ff;
+  --toolbar-bg: rgba(8, 14, 22, 0.9);
+  --panel-bg: rgba(10, 16, 26, 0.86);
+  --panel-edge: rgba(168, 187, 210, 0.18);
+  --text: #f4f9ff;
+  --muted: #90a5bb;
+}
+
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
+  user-select: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.pin-root {
+  width: 100%;
+  height: 100%;
+}
+
+.surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: transparent;
+}
+
+.surface.selected {
+  border-color: rgba(79, 168, 255, 0.92);
+  box-shadow:
+    0 0 0 1px rgba(79, 168, 255, 0.42),
+    0 18px 36px rgba(0, 0, 0, 0.2);
+}
+
+.visual-layer {
+  position: absolute;
+  inset: 0;
+}
+
+.base-image,
+.overlay-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.base-image {
+  display: block;
+}
+
+.overlay-canvas {
+  pointer-events: none;
+}
+
+.toolbar,
+.chooser,
+.inspector,
+.toast {
+  position: absolute;
+  z-index: 10;
+}
+
+.toolbar,
+.chooser,
+.inspector {
+  backdrop-filter: blur(14px);
+}
+
+.toolbar {
+  top: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding: 8px;
+  border-radius: 16px;
+  background: var(--toolbar-bg);
+  border: 1px solid var(--panel-edge);
+}
+
+.chooser {
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-radius: 18px;
+  background: rgba(10, 18, 28, 0.92);
+  border: 1px solid rgba(160, 184, 206, 0.22);
+}
+
+.toolbar.hidden,
+.chooser.hidden,
+.inspector.hidden,
+.toast.hidden {
+  display: none;
+}
+
+.toolbar button,
+.chooser button,
+.ghost {
+  border: 0;
+  border-radius: 12px;
+  padding: 9px 11px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  cursor: pointer;
+}
+
+.toolbar button.active {
+  color: #b7e0ff;
+  background: rgba(79, 168, 255, 0.24);
+}
+
+.color-swatch {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  padding: 0;
+}
+
+.color-swatch.red {
+  background: #ef3b34;
+}
+
+.color-swatch.blue {
+  background: #2f86ff;
+}
+
+.color-swatch.active {
+  box-shadow: inset 0 0 0 2px white;
+}
+
+.inspector {
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  color: var(--text);
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-edge);
+}
+
+.inspector-head,
+.group-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.inspector-head small,
+.group-head span {
+  color: var(--muted);
+}
+
+.inspector-group {
+  margin-top: 14px;
+}
+
+.group-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.text-box {
+  min-height: 72px;
+  max-height: 140px;
+  overflow: auto;
+  margin: 10px 0 0;
+  padding: 12px;
+  border-radius: 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: #f7fbff;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+#opacity-slider {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.toast {
+  left: 12px;
+  bottom: 12px;
+  max-width: calc(100% - 24px);
+  padding: 10px 12px;
+  border-radius: 14px;
+  color: #f7fbff;
+  background: rgba(12, 20, 30, 0.92);
+  border: 1px solid rgba(133, 172, 212, 0.18);
+}
+

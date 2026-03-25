@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PinShot</title>
+    <link rel="stylesheet" href="./index.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="hero-card">
+        <div class="hero-copy">
+          <p class="eyebrow">PinShot for Windows</p>
+          <h1>Capture, pin, annotate, OCR, and translate.</h1>
+          <p class="hero-text">
+            Windows 版保持你现在的截图贴图流程，同时改成更符合托盘应用和快捷键驱动的桌面体验。
+          </p>
+        </div>
+        <div class="hero-actions">
+          <button data-capture="choose">Capture Area</button>
+          <button data-capture="pin" class="secondary">Capture &amp; Pin</button>
+          <button data-capture="copy" class="secondary">Capture &amp; Copy</button>
+        </div>
+      </section>
+
+      <section class="grid">
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Preferences</p>
+              <h2>Quick Setup</h2>
+            </div>
+            <span id="hotkey-pill" class="pill">Ctrl + Shift + 2</span>
+          </div>
+
+          <label class="field">
+            <span>Global Hotkey</span>
+            <input id="hotkey-input" type="text" placeholder="Ctrl+Shift+2" />
+          </label>
+          <button id="save-hotkey" class="wide">Save Hotkey</button>
+
+          <label class="toggle">
+            <input id="launch-toggle" type="checkbox" />
+            <span>
+              <strong>Launch at Login</strong>
+              <small>Enabled by default for the packaged Windows app.</small>
+            </span>
+          </label>
+
+          <p id="status" class="status">Ready.</p>
+        </article>
+
+        <article class="panel">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">History</p>
+              <h2>Recent Captures</h2>
+            </div>
+            <button id="clear-history" class="text-button">Clear</button>
+          </div>
+          <div id="history-list" class="history-list"></div>
+        </article>
+      </section>
+    </main>
+
+    <script src="./index.js"></script>
+  </body>
+</html>
+
