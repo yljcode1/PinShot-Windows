@@ -20,7 +20,7 @@ function renderHistory(history) {
   if (!history.length) {
     const empty = document.createElement('div');
     empty.className = 'empty-state';
-    empty.textContent = 'No recent captures yet.';
+    empty.textContent = '还没有最近截图，先试试上面的快捷操作。';
     refs.historyList.appendChild(empty);
     return;
   }
@@ -33,11 +33,11 @@ function renderHistory(history) {
         <strong>${item.title}</strong>
         <small>${item.sizeLabel}</small>
       </div>
-      <button type="button">Open</button>
+      <button type="button">打开</button>
     `;
     row.querySelector('button').addEventListener('click', async () => {
       await window.pinshot.reopenHistory(item.id);
-      setStatus('Reopened a recent pin.');
+      setStatus('已重新打开该贴图。');
     });
     refs.historyList.appendChild(row);
   }
@@ -59,36 +59,36 @@ refs.captureButtons.forEach((button) => {
   button.addEventListener('click', async () => {
     const mode = button.dataset.capture;
     await window.pinshot.startCapture(mode);
-    setStatus(`Started ${button.textContent}.`);
+    setStatus(`已开始：${button.dataset.label || button.textContent.trim()}。`);
   });
 });
 
 refs.saveHotkey.addEventListener('click', async () => {
   const value = refs.hotkeyInput.value.trim();
   if (!value) {
-    setStatus('Please enter a valid accelerator.', true);
+    setStatus('请输入有效的快捷键。', true);
     return;
   }
 
   const result = await window.pinshot.setHotkey(value);
   if (!result.ok) {
-    setStatus(result.message || 'Could not save the hotkey.', true);
+    setStatus(result.message || '保存快捷键失败。', true);
     return;
   }
 
   refs.hotkeyPill.textContent = result.label;
-  setStatus(`Hotkey updated to ${result.label}.`);
+  setStatus(`快捷键已更新为 ${result.label}。`);
 });
 
 refs.launchToggle.addEventListener('change', async () => {
   await window.pinshot.setLaunchAtLogin(refs.launchToggle.checked);
-  setStatus(refs.launchToggle.checked ? 'Launch at login enabled.' : 'Launch at login disabled.');
+  setStatus(refs.launchToggle.checked ? '已开启开机启动。' : '已关闭开机启动。');
 });
 
 refs.clearHistory.addEventListener('click', async () => {
   await window.pinshot.clearHistory();
   renderHistory([]);
-  setStatus('History cleared.');
+  setStatus('历史记录已清空。');
 });
 
 window.pinshot.onSettingsState((state) => {
@@ -97,6 +97,5 @@ window.pinshot.onSettingsState((state) => {
 
 bootstrap().catch((error) => {
   console.error(error);
-  setStatus(error.message || 'Failed to load settings.', true);
+  setStatus(error.message || '加载设置失败。', true);
 });
-

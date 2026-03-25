@@ -24,6 +24,8 @@ contextBridge.exposeInMainWorld('pinshot', {
     ipcRenderer.on('pin:selected', (_event, selected) => callback(selected));
   },
   movePin: (pinId, delta) => ipcRenderer.invoke('pin:move', pinId, delta),
+  startDragPin: (pinId, cursor) => ipcRenderer.invoke('pin:start-drag', pinId, cursor),
+  stopDragPin: (pinId) => ipcRenderer.invoke('pin:stop-drag', pinId),
   resizePin: (pinId, size) => ipcRenderer.invoke('pin:resize', pinId, size),
   focusPin: (pinId) => ipcRenderer.invoke('pin:focus', pinId),
   closePin: (pinId) => ipcRenderer.invoke('pin:close', pinId),

@@ -341,7 +341,7 @@ function buildHistoryEntry(pin) {
     imageDataUrl: pin.imageDataUrl,
     originalWidth: pin.originalWidth,
     originalHeight: pin.originalHeight,
-    title: `${new Date(pin.createdAt).toLocaleTimeString()} · ${pin.originalWidth}×${pin.originalHeight}`,
+    title: `${new Date(pin.createdAt).toLocaleTimeString()} · ${pin.originalWidth} × ${pin.originalHeight}`,
     sizeLabel: `${pin.originalWidth} × ${pin.originalHeight}`,
     createdAt: pin.createdAt
   };
@@ -416,6 +416,7 @@ function createPinWindow(pin) {
   });
 
   win.on('closed', () => {
+    stopPinDrag(pin);
     pinWindows.delete(pin.id);
     updateTray();
   });
@@ -502,6 +503,74 @@ function ensurePin(pinId) {
   return pinWindows.get(pinId);
 }
 
+function stopPinDrag(pin) {
+  if (!pin?.dragInterval) {
+    return;
+  }
+
+  clearInterval(pin.dragInterval);
+  pin.dragInterval = null;
+  pin.dragOffset = null;
+}
+
+function snapWindowBounds(bounds) {
+  const display = screen.getDisplayMatching(bounds);
+  const area = display.workArea;
+  const threshold = 18;
+  const snapped = { ...bounds };
+
+  if (Math.abs(bounds.x - area.x) <= threshold) {
+    snapped.x = area.x;
+  }
+
+  if (Math.abs(bounds.y - area.y) <= threshold) {
+    snapped.y = area.y;
+  }
+
+  const rightGap = Math.abs((bounds.x + bounds.width) - (area.x + area.width));
+  if (rightGap <= threshold) {
+    snapped.x = area.x + area.width - bounds.width;
+  }
+
+  const bottomGap = Math.abs((bounds.y + bounds.height) - (area.y + area.height));
+  if (bottomGap <= threshold) {
+    snapped.y = area.y + area.height - bounds.height;
+  }
+
+  return snapped;
+}
+
+function startPinDrag(pinId, cursor) {
+  const pin = ensurePin(pinId);
+  if (!pin?.window || pin.window.isDestroyed()) {
+    return false;
+  }
+
+  stopPinDrag(pin);
+
+  const bounds = pin.window.getBounds();
+  pin.dragOffset = {
+    x: Math.round(cursor.x - bounds.x),
+    y: Math.round(cursor.y - bounds.y)
+  };
+
+  pin.dragInterval = setInterval(() => {
+    if (!pin.window || pin.window.isDestroyed() || !pin.dragOffset) {
+      stopPinDrag(pin);
+      return;
+    }
+
+    const point = screen.getCursorScreenPoint();
+    pin.window.setBounds(snapWindowBounds({
+      ...pin.window.getBounds(),
+      x: Math.round(point.x - pin.dragOffset.x),
+      y: Math.round(point.y - pin.dragOffset.y)
+    }));
+  }, 8);
+
+  return true;
+}
+
 function movePin(pinId, delta) {
   const pin = ensurePin(pinId);
   if (!pin?.window || pin.window.isDestroyed()) {
@@ -509,11 +578,11 @@ function movePin(pinId, delta) {
   }
 
   const bounds = pin.window.getBounds();
-  pin.window.setBounds({
+  pin.window.setBounds(snapWindowBounds({
     ...bounds,
     x: Math.round(bounds.x + delta.x),
     y: Math.round(bounds.y + delta.y)
-  });
+  }));
   return true;
 }
 
@@ -603,6 +672,16 @@ function installIpc() {
   });
 
   ipcMain.handle('pin:move', (_event, pinId, delta) => ({ ok: movePin(pinId, delta) }));
+  ipcMain.handle('pin:start-drag', (_event, pinId, cursor) => ({ ok: startPinDrag(pinId, cursor) }));
+  ipcMain.handle('pin:stop-drag', (_event, pinId) => {
+    const pin = ensurePin(pinId);
+    if (!pin) {
+      return { ok: false };
+    }
+
+    stopPinDrag(pin);
+    return { ok: true };
+  });
   ipcMain.handle('pin:resize', (_event, pinId, size) => ({ ok: resizePin(pinId, size) }));
   ipcMain.handle('pin:focus', (_event, pinId) => ({ ok: focusPin(pinId) }));
   ipcMain.handle('pin:close', (_event, pinId) => ({ ok: closePin(pinId) }));

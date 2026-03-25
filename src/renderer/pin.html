@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="en">
+﻿<!doctype html>
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -16,59 +16,73 @@
         </div>
 
         <div id="toolbar" class="toolbar hidden">
-          <button data-action="toggle-inspector" title="Text Panel">Txt</button>
-          <button data-tool="none" title="Normal">Move</button>
-          <button data-tool="selectText" title="Select Text">OCR</button>
-          <button data-tool="pen" title="Pen">Pen</button>
-          <button data-tool="rectangle" title="Rectangle">Rect</button>
-          <button data-tool="arrow" title="Arrow">Arrow</button>
-          <button data-tool="text" title="Text">Text</button>
-          <button data-tool="mosaic" title="Mosaic">Mosaic</button>
-          <button data-color="#ef3b34" class="color-swatch red" title="Red"></button>
-          <button data-color="#2f86ff" class="color-swatch blue" title="Blue"></button>
-          <button data-action="undo" title="Undo">Undo</button>
-          <button data-action="clear" title="Clear">Clear</button>
-          <button data-action="copy" title="Copy">Copy</button>
-          <button data-action="save" title="Save">Save</button>
-          <button data-action="close" title="Close">Close</button>
+          <div class="toolbar-group">
+            <button data-action="toggle-inspector" title="文本面板">文本</button>
+            <button data-tool="none" title="移动模式">移动</button>
+            <button data-tool="selectText" title="OCR 选词">识别</button>
+          </div>
+          <div class="toolbar-group">
+            <button data-tool="pen" title="画笔">画笔</button>
+            <button data-tool="rectangle" title="矩形">矩形</button>
+            <button data-tool="arrow" title="箭头">箭头</button>
+            <button data-tool="text" title="文字">文字</button>
+            <button data-tool="mosaic" title="马赛克">打码</button>
+          </div>
+          <div class="toolbar-group">
+            <button data-color="#ef3b34" class="color-swatch red" title="红色"></button>
+            <button data-color="#2f86ff" class="color-swatch blue" title="蓝色"></button>
+          </div>
         </div>
 
         <div id="chooser" class="chooser hidden">
-          <button data-chooser="quick-edit">Quick Edit</button>
-          <button data-chooser="pin">Pin</button>
-          <button data-chooser="copy">Copy</button>
+          <button data-chooser="quick-edit">快速编辑</button>
+          <button data-chooser="pin">仅贴图</button>
+          <button data-chooser="copy">复制后关闭</button>
+        </div>
+
+        <div id="move-hint" class="move-hint hidden">按住鼠标左键拖动即可移动，靠近屏幕边缘会自动吸附</div>
+
+        <div id="context-menu" class="context-menu hidden">
+          <button data-context-action="toggle-inspector">文本面板</button>
+          <button data-context-action="undo">撤销</button>
+          <button data-context-action="clear">清空标注</button>
+          <div class="context-separator"></div>
+          <button data-context-action="copy">复制图片</button>
+          <button data-context-action="save">保存图片</button>
+          <div class="context-separator"></div>
+          <button data-context-action="close">关闭贴图</button>
         </div>
 
         <div id="inspector" class="inspector hidden">
           <div class="inspector-head">
             <div>
-              <strong>Text Panel</strong>
-              <small>OCR, translation, and pin opacity</small>
+              <strong>文本面板</strong>
+              <small>OCR、翻译和贴图透明度</small>
             </div>
-            <button id="close-inspector" class="ghost">Close</button>
+            <button id="close-inspector" class="ghost">关闭</button>
           </div>
 
           <div class="inspector-group">
             <div class="group-head">
-              <strong>OCR</strong>
+              <strong>OCR 文本</strong>
               <div class="group-actions">
-                <button id="copy-text" class="ghost">Copy</button>
-                <button id="translate-text" class="ghost">Translate</button>
+                <button id="copy-text" class="ghost">复制</button>
+                <button id="translate-text" class="ghost">翻译</button>
               </div>
             </div>
-            <pre id="ocr-text" class="text-box">Recognizing text...</pre>
+            <pre id="ocr-text" class="text-box">正在识别文字...</pre>
           </div>
 
           <div id="translation-group" class="inspector-group hidden">
             <div class="group-head">
-              <strong id="translation-label">Translation</strong>
+              <strong id="translation-label">翻译结果</strong>
             </div>
-            <pre id="translated-text" class="text-box">Translated text will appear here.</pre>
+            <pre id="translated-text" class="text-box">翻译结果会显示在这里。</pre>
           </div>
 
           <div class="inspector-group">
             <div class="group-head">
-              <strong>Opacity</strong>
+              <strong>透明度</strong>
               <span id="opacity-label">96%</span>
             </div>
             <input id="opacity-slider" type="range" min="35" max="100" value="96" />
@@ -82,4 +96,3 @@
     <script src="./pin.js"></script>
   </body>
 </html>
-

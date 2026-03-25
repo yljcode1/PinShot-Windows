@@ -15,11 +15,11 @@ const state = {
 function modeText(mode) {
   switch (mode) {
     case 'pin':
-      return 'Capture & Pin';
+      return '截图并贴图';
     case 'copy':
-      return 'Capture & Copy';
+      return '截图并复制';
     default:
-      return 'Capture Area';
+      return '框选截图';
   }
 }
 
@@ -103,4 +103,3 @@ window.addEventListener('keydown', async (event) => {
 window.addEventListener('contextmenu', (event) => {
   event.preventDefault();
 });
-

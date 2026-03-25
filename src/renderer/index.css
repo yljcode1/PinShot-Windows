@@ -1,12 +1,13 @@
 :root {
   color-scheme: dark;
   --bg: #091018;
-  --panel: rgba(14, 24, 36, 0.82);
-  --panel-edge: rgba(148, 170, 196, 0.18);
+  --panel: rgba(15, 24, 38, 0.76);
+  --panel-strong: rgba(11, 19, 31, 0.88);
+  --panel-edge: rgba(160, 182, 208, 0.18);
   --text: #eff5ff;
   --muted: #8fa3bc;
   --accent: #35a7ff;
-  --accent-soft: rgba(53, 167, 255, 0.16);
+  --accent-soft: rgba(53, 167, 255, 0.14);
   --danger: #ef5555;
 }
 
@@ -20,12 +21,26 @@ body {
   font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(53, 167, 255, 0.22), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(20, 214, 180, 0.14), transparent 24%),
+    radial-gradient(circle at top left, rgba(53, 167, 255, 0.2), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(20, 214, 180, 0.12), transparent 24%),
     linear-gradient(160deg, #091018 0%, #101c2b 100%);
 }
 
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.08;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
 .app-shell {
+  position: relative;
+  z-index: 1;
   max-width: 1180px;
   margin: 0 auto;
   padding: 32px;
@@ -35,15 +50,17 @@ body {
 .panel {
   border: 1px solid var(--panel-edge);
   background: var(--panel);
-  backdrop-filter: blur(18px);
-  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(20px);
+  box-shadow:
+    0 24px 80px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .hero-card {
   display: grid;
   grid-template-columns: 1.35fr 0.9fr;
   gap: 28px;
-  padding: 28px;
+  padding: 30px;
   border-radius: 28px;
 }
 
@@ -70,6 +87,23 @@ body {
   line-height: 1.7;
 }
 
+.hero-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #d6ecff;
+  border: 1px solid rgba(128, 186, 240, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+}
+
 .hero-actions {
   display: flex;
   flex-direction: column;
@@ -90,17 +124,29 @@ button {
   color: white;
   background: linear-gradient(135deg, #2f86ff 0%, #39c0f8 100%);
   transition: transform 140ms ease, opacity 140ms ease, box-shadow 140ms ease;
-  box-shadow: 0 14px 36px rgba(53, 167, 255, 0.22);
+  box-shadow:
+    0 14px 36px rgba(53, 167, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
 button:hover {
   transform: translateY(-1px);
 }
 
+button:active {
+  transform: translateY(0);
+}
+
 button.secondary {
   color: var(--text);
   background: rgba(124, 153, 185, 0.12);
-  box-shadow: none;
+  box-shadow: inset 0 0 0 1px rgba(142, 174, 212, 0.14);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid rgba(82, 175, 255, 0.88);
+  outline-offset: 2px;
 }
 
 button.text-button {
@@ -159,6 +205,11 @@ button.text-button {
   padding: 13px 14px;
   color: var(--text);
   background: rgba(5, 10, 16, 0.44);
+  transition: border-color 140ms ease, background 140ms ease, box-shadow 140ms ease;
+}
+
+.field input:hover {
+  border-color: rgba(148, 170, 196, 0.32);
 }
 
 .wide {
@@ -183,6 +234,33 @@ button.text-button {
   line-height: 1.5;
 }
 
+.tips-card {
+  margin-top: 18px;
+  padding: 16px 18px;
+  border-radius: 18px;
+  background: var(--panel-strong);
+  border: 1px solid rgba(148, 170, 196, 0.14);
+}
+
+.tips-card strong {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.tips-list {
+  margin: 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.tips-list li + li {
+  margin-top: 8px;
+}
+
+.tips-list span {
+  color: #d7ebff;
+}
+
 .status {
   min-height: 24px;
   margin: 18px 0 0;
@@ -202,7 +280,14 @@ button.text-button {
   padding: 14px 15px;
   border-radius: 16px;
   border: 1px solid rgba(148, 170, 196, 0.14);
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.03);
+  transition: border-color 140ms ease, transform 140ms ease, background 140ms ease;
+}
+
+.history-item:hover {
+  transform: translateY(-1px);
+  border-color: rgba(115, 186, 250, 0.24);
+  background: rgba(255, 255, 255, 0.05);
 }
 
 .history-item strong {
@@ -241,4 +326,3 @@ button.text-button {
     font-size: 28px;
   }
 }
-

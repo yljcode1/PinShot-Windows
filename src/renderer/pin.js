@@ -1,4 +1,4 @@
-const refs = {
+﻿const refs = {
   root: document.getElementById('pin-root'),
   surface: document.getElementById('surface'),
   visualLayer: document.getElementById('visual-layer'),
@@ -8,6 +8,8 @@ const refs = {
   toolbar: document.getElementById('toolbar'),
   chooser: document.getElementById('chooser'),
   inspector: document.getElementById('inspector'),
+  contextMenu: document.getElementById('context-menu'),
+  moveHint: document.getElementById('move-hint'),
   toast: document.getElementById('toast'),
   ocrText: document.getElementById('ocr-text'),
   translatedText: document.getElementById('translated-text'),
@@ -32,13 +34,17 @@ const state = {
   color: '#ef3b34',
   annotations: [],
   draft: null,
-  draggingPin: null,
   pointerDown: null,
   showToolbar: false,
   showChooser: false,
   showInspector: false,
+  contextMenu: {
+    open: false,
+    x: 0,
+    y: 0
+  },
   toastTimer: null,
-  ocrText: 'Recognizing text...',
+  ocrText: '正在识别文字...',
   ocrWords: [],
   translatedText: '',
   translationLabel: '',
@@ -50,6 +56,10 @@ function clamp(value, min, max) {
   return Math.min(max, Math.max(min, value));
 }
 
+function isInteractiveTarget(target) {
+  return Boolean(target?.closest('.toolbar, .chooser, .inspector, .context-menu'));
+}
+
 function showToast(message) {
   clearTimeout(state.toastTimer);
   refs.toast.textContent = message;
@@ -57,6 +67,20 @@ function showToast(message) {
   state.toastTimer = setTimeout(() => {
     refs.toast.classList.add('hidden');
   }, 1800);
+}
+
+function closeContextMenu() {
+  state.contextMenu.open = false;
+  renderToolbarState();
+}
+
+function openContextMenu(event) {
+  state.contextMenu.open = true;
+  state.contextMenu.x = clamp(event.clientX, 12, Math.max(12, window.innerWidth - 188));
+  state.contextMenu.y = clamp(event.clientY, 12, Math.max(12, window.innerHeight - 220));
+  refs.contextMenu.style.left = `${state.contextMenu.x}px`;
+  refs.contextMenu.style.top = `${state.contextMenu.y}px`;
+  renderToolbarState();
 }
 
 function setSurfaceOpacity() {
@@ -123,6 +147,10 @@ function renderToolbarState() {
   refs.toolbar.classList.toggle('hidden', !state.showToolbar);
   refs.chooser.classList.toggle('hidden', !state.showChooser);
   refs.inspector.classList.toggle('hidden', !state.showInspector);
+  refs.contextMenu.classList.toggle('hidden', !state.contextMenu.open);
+  refs.moveHint.classList.toggle('hidden', !state.selected || state.showToolbar || state.showChooser || state.tool !== 'none');
+  refs.surface.classList.toggle('can-drag', state.tool === 'none');
+  refs.surface.classList.toggle('dragging', Boolean(state.pointerDown?.moved && state.tool === 'none'));
 
   document.querySelectorAll('[data-tool]').forEach((button) => {
     button.classList.toggle('active', button.dataset.tool === state.tool);
@@ -132,11 +160,19 @@ function renderToolbarState() {
     button.classList.toggle('active', button.dataset.color === state.color);
   });
 
-  refs.ocrText.textContent = state.ocrText || 'No text recognized.';
-  refs.translatedText.textContent = state.translatedText || 'Translated text will appear here.';
-  refs.translationLabel.textContent = state.translationLabel || 'Translation';
+  refs.ocrText.textContent = state.ocrText || '没有识别到文字。';
+  refs.translatedText.textContent = state.translatedText || '翻译结果会显示在这里。';
+  refs.translationLabel.textContent = state.translationLabel || '翻译结果';
   refs.translationGroup.classList.toggle('hidden', !state.translatedText);
-  refs.translateText.disabled = !state.ocrText || state.ocrText === 'Recognizing text...';
+  refs.translateText.disabled = !state.ocrText || ['正在识别文字...', '没有识别到文字。', 'OCR 识别失败。'].includes(state.ocrText);
+
+  refs.contextMenu.querySelectorAll('[data-context-action]').forEach((button) => {
+    if (button.dataset.contextAction === 'undo' || button.dataset.contextAction === 'clear') {
+      button.disabled = !state.annotations.length;
+      return;
+    }
+    button.disabled = false;
+  });
 }
 
 function drawArrow(ctx, start, end) {
@@ -291,16 +327,16 @@ function setTool(tool) {
   }
 
   const messages = {
-    none: 'Normal mode: drag the pin or toggle the toolbar.',
-    selectText: 'OCR selection mode: drag to select words inside the image.',
-    pen: 'Pen mode: draw directly on the pin.',
-    rectangle: 'Rectangle mode: drag to highlight an area.',
-    arrow: 'Arrow mode: drag to point at content.',
-    text: 'Text mode: click where you want to place text.',
-    mosaic: 'Mosaic mode: drag to pixelate sensitive regions.'
+    none: '移动模式：按住鼠标左键拖动贴图，靠近边缘会自动吸附。',
+    selectText: 'OCR 选词模式：拖动选择图片中的文字。',
+    pen: '画笔模式：可直接在贴图上涂画。',
+    rectangle: '矩形模式：拖动高亮一个区域。',
+    arrow: '箭头模式：拖动标记重点内容。',
+    text: '文字模式：点击位置后输入文字。',
+    mosaic: '打码模式：拖动模糊敏感区域。'
   };
 
-  showToast(messages[tool] || 'Tool changed.');
+  showToast(messages[tool] || '工具已切换。');
   render();
 }
 
@@ -329,7 +365,7 @@ function exportAnnotatedImage() {
 async function handleCopy(closeAfter = false) {
   const image = exportAnnotatedImage();
   await window.pinshot.copyImage(state.id, image);
-  showToast('Copied to clipboard.');
+  showToast('已复制到剪贴板。');
   if (closeAfter) {
     setTimeout(() => void window.pinshot.closePin(state.id), 120);
   }
@@ -338,20 +374,20 @@ async function handleCopy(closeAfter = false) {
 async function handleSave() {
   const image = exportAnnotatedImage();
   const result = await window.pinshot.saveImage(state.id, image);
-  showToast(result.ok ? 'Image saved.' : 'Save canceled.');
+  showToast(result.ok ? '图片已保存。' : '已取消保存。');
 }
 
 async function runOCR() {
   try {
-    state.ocrText = 'Recognizing text...';
+    state.ocrText = '正在识别文字...';
     render();
     const result = await window.pinshot.recognizeText(state.imageDataUrl);
-    state.ocrText = (result.text || '').trim() || 'No text recognized.';
+    state.ocrText = (result.text || '').trim() || '没有识别到文字。';
     state.ocrWords = result.words || [];
     render();
   } catch (error) {
     console.error(error);
-    state.ocrText = 'OCR failed.';
+    state.ocrText = 'OCR 识别失败。';
     render();
   }
 }
@@ -359,20 +395,20 @@ async function runOCR() {
 function detectTranslationTarget(text) {
   const hasChinese = /[\u3400-\u9fff]/.test(text);
   return hasChinese
-    ? { target: 'en', label: 'Chinese -> English' }
-    : { target: 'zh-CN', label: 'Auto -> Chinese (Simplified)' };
+    ? { target: 'en', label: '中文 -> English' }
+    : { target: 'zh-CN', label: '自动识别 -> 简体中文' };
 }
 
 async function handleTranslate() {
   const text = state.ocrText?.trim();
-  if (!text || text === 'Recognizing text...' || text === 'No text recognized.' || text === 'OCR failed.') {
-    showToast('No OCR text to translate.');
+  if (!text || text === '正在识别文字...' || text === '没有识别到文字。' || text === 'OCR 识别失败。') {
+    showToast('当前没有可翻译的 OCR 文本。');
     return;
   }
 
   const target = detectTranslationTarget(text);
   refs.translateText.disabled = true;
-  refs.translateText.textContent = 'Translating...';
+  refs.translateText.textContent = '翻译中...';
 
   try {
     const result = await window.pinshot.translateText(text, target.target);
@@ -380,13 +416,13 @@ async function handleTranslate() {
     state.translationLabel = target.label;
     state.showInspector = true;
     render();
-    showToast('Translation complete.');
+    showToast('翻译完成。');
   } catch (error) {
     console.error(error);
-    showToast('Translation failed.');
+    showToast('翻译失败。');
   } finally {
     refs.translateText.disabled = false;
-    refs.translateText.textContent = 'Translate';
+    refs.translateText.textContent = '翻译';
   }
 }
 
@@ -402,13 +438,13 @@ async function copySelectedWords(rect) {
 
   const text = words.map((word) => word.text).join(' ').trim();
   if (!text) {
-    showToast('No OCR words selected.');
+    showToast('未选中 OCR 文字。');
     return;
   }
 
   await window.pinshot.copyText(text);
   state.showInspector = true;
-  showToast('Selected OCR text copied.');
+  showToast('已复制选中的 OCR 文本。');
 }
 
 function handleToolbarAction(action) {
@@ -461,6 +497,12 @@ function handleChooserAction(action) {
 }
 
 async function handlePointerDown(event) {
+  if (event.button !== 0 || isInteractiveTarget(event.target)) {
+    return;
+  }
+
+  refs.surface.setPointerCapture(event.pointerId);
+  closeContextMenu();
   await window.pinshot.focusPin(state.id);
   state.selected = true;
   render();
@@ -472,9 +514,19 @@ async function handlePointerDown(event) {
     startScreenY: event.screenY,
     lastScreenX: event.screenX,
     lastScreenY: event.screenY,
+    pointerId: event.pointerId,
+    dragStarted: false,
     moved: false,
     selectionRect: null
   };
+
+  if (state.tool === 'none') {
+    await window.pinshot.startDragPin(state.id, {
+      x: event.screenX,
+      y: event.screenY
+    });
+    state.pointerDown.dragStarted = true;
+  }
 
   if (state.tool === 'pen') {
     state.draft = {
@@ -511,20 +563,23 @@ async function handlePointerDown(event) {
 }
 
 function handlePointerMove(event) {
-  if (!state.pointerDown) {
+  if (!state.pointerDown || event.pointerId !== state.pointerDown.pointerId) {
     return;
   }
 
   const point = imagePointFromEvent(event);
   const deltaX = event.screenX - state.pointerDown.lastScreenX;
   const deltaY = event.screenY - state.pointerDown.lastScreenY;
+  const totalDeltaX = event.screenX - state.pointerDown.startScreenX;
+  const totalDeltaY = event.screenY - state.pointerDown.startScreenY;
 
   if (state.tool === 'none') {
-    if (Math.abs(deltaX) > 0 || Math.abs(deltaY) > 0) {
+    if ((event.buttons & 1) !== 1) {
+      return;
+    }
+
+    if (Math.abs(totalDeltaX) > 2 || Math.abs(totalDeltaY) > 2) {
       state.pointerDown.moved = true;
-      void window.pinshot.movePin(state.id, { x: deltaX, y: deltaY });
-      state.pointerDown.lastScreenX = event.screenX;
-      state.pointerDown.lastScreenY = event.screenY;
     }
   } else if (state.tool === 'pen' && state.draft) {
     state.draft.points.push(point);
@@ -572,10 +627,18 @@ async function handlePointerUp() {
     return;
   }
 
+  if (refs.surface.hasPointerCapture(state.pointerDown.pointerId)) {
+    refs.surface.releasePointerCapture(state.pointerDown.pointerId);
+  }
+
+  if (state.tool === 'none' && state.pointerDown.dragStarted) {
+    await window.pinshot.stopDragPin(state.id);
+  }
+
   if (state.tool === 'none' && !state.pointerDown.moved) {
     state.showToolbar = !state.showToolbar;
   } else if (state.tool === 'text') {
-    const text = window.prompt('Text to place on the pin');
+    const text = window.prompt('请输入要放置在贴图上的文字');
     if (text) {
       state.annotations.push({
         type: 'text',
@@ -597,18 +660,18 @@ async function handlePointerUp() {
 }
 
 function handleWheel(event) {
-  if (!event.ctrlKey && !event.metaKey) {
+  if (event.target.closest('.inspector, .context-menu') || event.target === refs.opacitySlider) {
     return;
   }
 
   event.preventDefault();
-  const factor = event.deltaY > 0 ? 0.92 : 1.08;
+  const factor = event.deltaY > 0 ? 0.94 : 1.06;
   state.zoom = clamp(state.zoom * factor, 0.24, 4);
   void window.pinshot.resizePin(state.id, {
     width: state.originalWidth * state.zoom,
     height: state.originalHeight * state.zoom
   });
-  showToast(`Zoom ${Math.round(state.zoom * 100)}%`);
+  showToast(`缩放 ${Math.round(state.zoom * 100)}%`);
 }
 
 function updateHistory() {
@@ -617,7 +680,7 @@ function updateHistory() {
     imageDataUrl: state.imageDataUrl,
     originalWidth: state.originalWidth,
     originalHeight: state.originalHeight,
-    title: `${new Date().toLocaleTimeString()} · ${state.originalWidth}×${state.originalHeight}`,
+    title: `${new Date().toLocaleTimeString()} · ${state.originalWidth} × ${state.originalHeight}`,
     sizeLabel: `${state.originalWidth} × ${state.originalHeight}`,
     createdAt: Date.now()
   });
@@ -625,12 +688,14 @@ function updateHistory() {
 
 function bindEvents() {
   refs.surface.addEventListener('pointerdown', (event) => void handlePointerDown(event));
-  window.addEventListener('pointermove', handlePointerMove);
-  window.addEventListener('pointerup', () => void handlePointerUp());
+  refs.surface.addEventListener('pointermove', handlePointerMove);
+  refs.surface.addEventListener('pointerup', () => void handlePointerUp());
+  refs.surface.addEventListener('pointercancel', () => void handlePointerUp());
   window.addEventListener('wheel', handleWheel, { passive: false });
   window.addEventListener('resize', syncCanvasSize);
   window.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
+      closeContextMenu();
       if (state.tool !== 'none') {
         setTool('none');
         return;
@@ -643,6 +708,24 @@ function bindEvents() {
     if ((event.key === 'Delete' || event.key === 'Backspace') && state.annotations.length) {
       state.annotations.pop();
       render();
+    }
+  });
+
+  window.addEventListener('contextmenu', (event) => {
+    event.preventDefault();
+    if (isInteractiveTarget(event.target)) {
+      return;
+    }
+    openContextMenu(event);
+  });
+
+  window.addEventListener('mousedown', (event) => {
+    if (event.button !== 0) {
+      return;
+    }
+
+    if (state.contextMenu.open && !event.target.closest('.context-menu')) {
+      closeContextMenu();
     }
   });
 
@@ -675,6 +758,16 @@ function bindEvents() {
     }
   });
 
+  refs.contextMenu.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-context-action]');
+    if (!button || button.disabled) {
+      return;
+    }
+
+    handleToolbarAction(button.dataset.contextAction);
+    closeContextMenu();
+  });
+
   refs.closeInspector.addEventListener('click', () => {
     state.showInspector = false;
     render();
@@ -682,7 +775,7 @@ function bindEvents() {
 
   refs.copyText.addEventListener('click', async () => {
     await window.pinshot.copyText(state.ocrText);
-    showToast('OCR text copied.');
+    showToast('OCR 文本已复制。');
   });
 
   refs.translateText.addEventListener('click', () => void handleTranslate());

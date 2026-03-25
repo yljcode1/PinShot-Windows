@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PinShot</title>
+    <title>PinShot 控制台</title>
     <link rel="stylesheet" href="./index.css" />
   </head>
   <body>
@@ -11,15 +11,22 @@
       <section class="hero-card">
         <div class="hero-copy">
           <p class="eyebrow">PinShot for Windows</p>
-          <h1>Capture, pin, annotate, OCR, and translate.</h1>
+          <h1>Windows 截图贴图控制台</h1>
           <p class="hero-text">
-            Windows 版保持你现在的截图贴图流程，同时改成更符合托盘应用和快捷键驱动的桌面体验。
+            通过托盘与全局快捷键快速截图、贴图、标注、OCR 识别和翻译，
+            保留轻量常驻体验，同时让界面更贴近 Windows 的使用习惯。
           </p>
+          <div class="hero-badges">
+            <span class="hero-badge">托盘常驻</span>
+            <span class="hero-badge">OCR 识别</span>
+            <span class="hero-badge">翻译</span>
+            <span class="hero-badge">历史记录</span>
+          </div>
         </div>
         <div class="hero-actions">
-          <button data-capture="choose">Capture Area</button>
-          <button data-capture="pin" class="secondary">Capture &amp; Pin</button>
-          <button data-capture="copy" class="secondary">Capture &amp; Copy</button>
+          <button data-capture="choose" data-label="框选截图">框选截图</button>
+          <button data-capture="pin" data-label="截图并贴图" class="secondary">截图并贴图</button>
+          <button data-capture="copy" data-label="截图并复制" class="secondary">截图并复制</button>
         </div>
       </section>
 
@@ -28,35 +35,45 @@
           <div class="panel-head">
             <div>
               <p class="panel-kicker">Preferences</p>
-              <h2>Quick Setup</h2>
+              <h2>快速设置</h2>
             </div>
             <span id="hotkey-pill" class="pill">Ctrl + Shift + 2</span>
           </div>
 
           <label class="field">
-            <span>Global Hotkey</span>
+            <span>全局快捷键</span>
             <input id="hotkey-input" type="text" placeholder="Ctrl+Shift+2" />
           </label>
-          <button id="save-hotkey" class="wide">Save Hotkey</button>
+          <button id="save-hotkey" class="wide">保存快捷键</button>
 
           <label class="toggle">
             <input id="launch-toggle" type="checkbox" />
             <span>
-              <strong>Launch at Login</strong>
-              <small>Enabled by default for the packaged Windows app.</small>
+              <strong>开机启动</strong>
+              <small>适合常驻托盘使用，打包后的 Windows 应用默认建议开启。</small>
             </span>
           </label>
 
-          <p id="status" class="status">Ready.</p>
+          <div class="tips-card">
+            <strong>Windows 操作提示</strong>
+            <ul class="tips-list">
+              <li>默认快捷键为 <span>Ctrl + Shift + 2</span></li>
+              <li>按住左键直接拖动可移动贴图</li>
+              <li>右键贴图可打开快捷操作菜单</li>
+              <li>按住 <span>Ctrl</span> 并滚轮可缩放贴图</li>
+            </ul>
+          </div>
+
+          <p id="status" class="status">准备就绪。</p>
         </article>
 
         <article class="panel">
           <div class="panel-head">
             <div>
               <p class="panel-kicker">History</p>
-              <h2>Recent Captures</h2>
+              <h2>最近截图</h2>
             </div>
-            <button id="clear-history" class="text-button">Clear</button>
+            <button id="clear-history" class="text-button">清空</button>
           </div>
           <div id="history-list" class="history-list"></div>
         </article>
@@ -66,4 +83,3 @@
     <script src="./index.js"></script>
   </body>
 </html>
-
